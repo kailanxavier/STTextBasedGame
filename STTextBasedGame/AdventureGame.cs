@@ -13,7 +13,11 @@ namespace STTextBasedGame
             public int Strawberry { get; set; }
         }
 
+
+
         private static readonly Random RandomInstance = new();
+        private static int gameDifficulty;
+        private static bool enemyDead = false;
 
         static void Main(string[] args)
         {
@@ -74,7 +78,7 @@ namespace STTextBasedGame
         private static void EndGame()
         {
             Player player = new();
-            if (player.Strawberry >= 10)
+            if (player.Strawberry >= 9)
             {
                 Console.WriteLine("You returned to the kingdom and brought all your friends strawberries.");
             }
@@ -114,7 +118,8 @@ namespace STTextBasedGame
                     PolarBearEncounter();
                     break;
                 case 4:
-                    Console.WriteLine("\nYou encounter something");
+                    Console.WriteLine("\nYou encounter a mind reader");
+                    MindReaderEncounter();
                     break;
                 case 5:
                     Console.WriteLine("\nYou find 1 lost strawberry.");
@@ -140,16 +145,13 @@ namespace STTextBasedGame
             switch (choice)
             {
                 case "1":
-                    // todo:
-                    // strawberry drop change = 100%
+                    gameDifficulty = 1;
                     break;
                 case "2":
-                    // todo:
-                    // strawberry drop chance = 66.6%
+                    gameDifficulty = 2;
                     break;
                 case "3":
-                    // todo:
-                    // strawberry drop chance = 33.3%
+                    gameDifficulty = 3;
                     break;
                 default:
                     DisplayErrorMessage();
@@ -162,7 +164,7 @@ namespace STTextBasedGame
         {
             Console.WriteLine($"\n{player.Name}'s statistics: ");
             Console.WriteLine($"Health: {player.Health}");
-            Console.WriteLine($"Strawberry: {player.Strawberry}");
+            Console.WriteLine($"Strawberries: {player.Strawberry}");
         }
 
         static string GetValidPlayerName()
@@ -193,19 +195,29 @@ namespace STTextBasedGame
         {
             // Weakness: Little red riding hood
             // Ask if player has her in their inventory
-            Console.WriteLine("Wolf");
-        }
+            // Attack? If yes then decide if they do damage or take damage, and if killed
+            // call strawberry dropper
+            // Run?
 
-        static void IronGolemEncounter()
-        {
-            // Rust potion? : dies
-            Console.WriteLine("Iron Golem");
+            Console.WriteLine("Would you like to attack the wolf? (yes/no)");
+            string? playerChoice = Console.ReadLine()?.ToLower();
+            if (playerChoice == "yes")
+            {
+
+            }
+            if (enemyDead)
+            {
+                StrawberryDropper();
+                Console.WriteLine("You have killed the wolf.");
+            }
         }
 
         static void FireSerpentEncounter()
         { 
             // Not winnable
             // But only does damage and stops the player from getting to the strawberry
+            // Attack?
+            // Run?
             Console.WriteLine("Serpent");
         }
 
@@ -213,6 +225,8 @@ namespace STTextBasedGame
         {
             // Ask if player has protective helmet
             // if not then the mind reader knows what they are up to and stops them
+            // Attack?
+            // Run?
             Console.WriteLine("Mind reader");
         }
 
@@ -223,6 +237,16 @@ namespace STTextBasedGame
             Console.WriteLine("Talking polar bear");
         }
 
+        // Helper to decide how many strawberries should be dropped
+        static void StrawberryDropper()
+        {
+            Player player = new();
+            int maxDropChance = gameDifficulty == 2 ? 3 : gameDifficulty == 3 ? 4 : 5;
+            int dropChance = RandomInstance.Next(1, maxDropChance + 1);
+
+            if (dropChance == 1) player.Strawberry++;
+        }
+
         static void ColouredLineHelper(string text, ConsoleColor colour)
         { 
             Console.ForegroundColor = colour;
@@ -231,3 +255,22 @@ namespace STTextBasedGame
         }
     }
 }
+
+// Check list:
+
+// Text input?
+// Variables?
+// Arithmetic operations?
+// Logic operations?
+// String operations?
+// Data structures?
+// Conditional statements?
+// Functions?
+// Coding best practices?
+/* 
+To do:
+
+- Implement village interaction
+- Implement inventory
+- Implement attack method
+*/
