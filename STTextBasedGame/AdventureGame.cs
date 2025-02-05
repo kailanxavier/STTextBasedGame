@@ -6,54 +6,49 @@ namespace STTextBasedGame
 {
     class AdventureGame
     {
-        struct Player
-        {
-            public string Name { get; set; }
-            public int Health { get; set; }
-            public int Strawberry { get; set; }
-        }
-
-
-
         private static readonly Random RandomInstance = new();
         private static int gameDifficulty;
-        private static bool enemyDead = false;
+
+#pragma warning disable
+        private static Inventory inventory;
 
         static void Main(string[] args)
         {
-            Player player = new Player { Name = "", Health = 100, Strawberry = 0 };
+            Player player = new() { Name = "", Health = 100, Strawberry = 0 };
+            Inventory inventory = new();
 
             player.Name = GetValidPlayerName();
-            Console.WriteLine($"\nGreetings {player.Name}, collect at least 10 strawberries to win.");
-            Console.WriteLine("Once you have 10 strawberries you may return to the kingdom.");
-            Console.WriteLine("The more the merrier but be careful.");
-            Console.WriteLine("But be careful... they are merciless.");
+            Console.WriteLine($"\nGreetings {player.Name}, collect at least 10 strawberries to win.\n" +
+                "Once you have 10 or more strawberries you may return to the kingdom.\n" + 
+                "The more the merrier.\n" + "But be careful... they are merciless.");
 
             SetDifficulty();
 
             bool isPlaying = true;
             while (isPlaying)
             {
-                if (player.Health <= 0) // lose condition
+                if (player.Health <= 0) // Lose condition
                 {
                     Console.WriteLine("You were warned. They showed no mercy.");
                     break;
                 }
 
                 ShowStatistics(player);
-                Console.WriteLine("\nWhat's your next move?");
-                Console.WriteLine("\n1. Explore the forest");
-                Console.WriteLine("2. Visit the village");
-                Console.WriteLine("3. Rest");
-                Console.WriteLine("4. Return to the kingdom");
-                Console.WriteLine("5. Quit");
+                Console.WriteLine("\nWhat's your next move?\n" + 
+                    "\n1. Explore the forest" +
+                    "\n2. Visit the village" +
+                    "\n3. Rest" +
+                    "\n4. Inventory" +
+                    "\n5. Return to the kindgom" +
+                    "\n6. Quit");
 
                 Console.WriteLine("\nYour choice: ");
                 string choice = Console.ReadLine() ?? string.Empty;
                 switch (choice)
                 {
                     case "1":
-                        player = Explore(player);
+#pragma warning disable
+                        player = Explore(player, inventory);
                         break;
                     case "2":
                         player = VisitVillage(player);
@@ -62,11 +57,19 @@ namespace STTextBasedGame
                         player = Rest(player);
                         break;
                     case "4":
-                        EndGame();
-                        isPlaying = false;
+                        inventory.ListItems();
                         break;
                     case "5":
+                        EndGame(player);
+                        isPlaying = false;
+                        break;
+                    case "6":
                         Environment.Exit(0);
+                        break;
+                    case "6661":
+                        GameHelpers.WriteColoredLine("\nHow did you even find this?", ConsoleColor.Yellow);
+                        GameHelpers.WriteColoredLine("You encounter A7X, they give you 100 strawberries.", ConsoleColor.Yellow);
+                        player.Strawberry += 100;
                         break;
                     default:
                         DisplayErrorMessage();
@@ -75,30 +78,55 @@ namespace STTextBasedGame
             }
         }
 
-        private static void EndGame()
+        private static Player EndGame(Player player)
         {
-            Player player = new();
-            if (player.Strawberry >= 9)
+            if (player.Strawberry >= 10)
             {
-                Console.WriteLine("You returned to the kingdom and brought all your friends strawberries.");
+                GameHelpers.WriteColoredLine("\nYou returned to the kingdom and brought all your friends strawberries." +
+                    "\nYou win!", ConsoleColor.Green);
             }
             else
             {
-                Console.WriteLine("You returned to the kingdom but you don't have enough strawberries. Jack eats you.");
+                GameHelpers.WriteColoredLine("\nYou returned to the kingdom but you don't have enough strawberries. Jack eats you." +
+                    "\nYou lose!", ConsoleColor.Red);
             }
+            return player;
         }
 
         private static Player Rest(Player player)
         {
-            throw new NotImplementedException();
+            GameHelpers.WriteColoredLine("\nYou rest for a few hours..." + 
+                "\nYou gain 10 health.", ConsoleColor.Green);
+            player.Health = Math.Min(player.Health + 10, 100);
+            return player;
         }
 
         private static Player VisitVillage(Player player)
         {
-            throw new NotImplementedException();
+            GameHelpers.WriteColoredLine("\nYou are offered a health potion in a exchange for 1 strawberry. " + 
+                "\nWould you like to purchase the potion? (yes/no)", ConsoleColor.Blue);
+            string? playerChoice = Console.ReadLine().ToLower();
+            if (playerChoice == "yes")
+            {
+                if (player.Strawberry > 0)
+                {
+                    GameHelpers.WriteColoredLine("\nYou trade 1 strawberry for the potion and restore 20 health.", ConsoleColor.Green);
+                    player.Health = Math.Min(player.Health + 20, 100);
+                    player.Strawberry -= 1;
+                }
+                else
+                {
+                    GameHelpers.WriteColoredLine("\nYou don't have enough strawberries to complete this trade", ConsoleColor.Red);
+                }
+            }
+            else
+            {
+                GameHelpers.WriteColoredLine("\nYou decline the offer and leave.", ConsoleColor.Red);
+            }
+            return player;
         }
 
-        private static Player Explore(Player player)
+        private static Player Explore(Player player, Inventory inventory)
         {
             Console.WriteLine("You go deep into the forest...");
 
@@ -106,24 +134,48 @@ namespace STTextBasedGame
             switch (randomEncounter)
             {
                 case 1:
-                    ColouredLineHelper("\nYou find a giant wolf. But she seems friendly.", ConsoleColor.Cyan);
-                    WolfEncounter();
+                    player = WolfEncounter(player, inventory);
                     break;
                 case 2:
-                    ColouredLineHelper("\nYou encounter a serpent of fire. She attacks you.", ConsoleColor.Red);
-                    FireSerpentEncounter();
+                    player = FireSerpentEncounter(player);
                     break;
                 case 3:
-                    Console.WriteLine("\nYou encounter a polar bear.");
-                    PolarBearEncounter();
+                    player = PolarBearEncounter(player, inventory);
                     break;
                 case 4:
-                    Console.WriteLine("\nYou encounter a mind reader");
-                    MindReaderEncounter();
+                    player = MindWizardEncounter(player, inventory);
                     break;
                 case 5:
                     Console.WriteLine("\nYou find 1 lost strawberry.");
                     player.Strawberry++;
+                    break;
+                case 6:
+                    string randomItemName = "";
+                    int randomItem = RandomInstance.Next(1, 6);
+                    switch (randomItem)
+                    {
+                        case 1:
+                            randomItemName = "Coca-Cola Bottle";
+                            inventory.AddItem(new Item(randomItemName, "This can be used to please the polar bear."));
+                            break;
+                        case 2:
+                            randomItemName = "Tin Foil Hat";
+                            inventory.AddItem(new Item(randomItemName, "This can be used agaisnt the mind wizard."));
+                            break;
+                        case 3:
+                            randomItemName = "Enchanted Sword";
+                            inventory.AddItem(new Item(randomItemName, "This can be used agaisnt the giant wolf if you choose to attack."));
+                            break;
+                        case 4:
+                            randomItemName = "Laughing Gas Grenade";
+                            inventory.AddItem(new Item(randomItemName, "This can be used against the mind wizard"));
+                            break;
+                        case 5:
+                            randomItemName = "Banana Peel Launcher";
+                            inventory.AddItem(new Item(randomItemName, "This item can be used to escape any enemy."));
+                            break;
+                    }
+                    GameHelpers.WriteColoredLine($"You open the chest and find: {randomItemName}", ConsoleColor.Green);
                     break;
                 default:
                     Console.WriteLine("\nNothing happens.");
@@ -131,6 +183,23 @@ namespace STTextBasedGame
             }
 
             return player;
+        }
+        static string GetValidPlayerName()
+        {
+            string? name;
+            do
+            {
+                Console.WriteLine("What is your name?");
+                name = Console.ReadLine()?.Trim();
+
+                if (string.IsNullOrEmpty(name))
+                {
+                    Console.WriteLine("Your name can't be empty. Try again.");
+                }
+            }
+            while (string.IsNullOrWhiteSpace(name));
+
+            return name;
         }
 
         private static void SetDifficulty()
@@ -159,7 +228,6 @@ namespace STTextBasedGame
             }
         }
 
-
         static void ShowStatistics(Player player)
         {
             Console.WriteLine($"\n{player.Name}'s statistics: ");
@@ -167,110 +235,102 @@ namespace STTextBasedGame
             Console.WriteLine($"Strawberries: {player.Strawberry}");
         }
 
-        static string GetValidPlayerName()
-        {
-            string? name;
-            do
-            {
-                Console.WriteLine("What is your name?");
-                name = Console.ReadLine()?.Trim();
-
-                if (string.IsNullOrEmpty(name))
-                {
-                    Console.WriteLine("Your name can't be empty. Try again.");
-                }
-            }
-            while (string.IsNullOrWhiteSpace(name));
-
-            return name;
-        }
-
         private static void DisplayErrorMessage()
         {
             Console.WriteLine("Please choose a valid option.");
         }
 
-        
-        static void WolfEncounter()
+        static Player WolfEncounter(Player player, Inventory inventory)
         {
-            // Weakness: Little red riding hood
-            // Ask if player has her in their inventory
-            // Attack? If yes then decide if they do damage or take damage, and if killed
-            // call strawberry dropper
-            // Run?
-
-            Console.WriteLine("Would you like to attack the wolf? (yes/no)");
+            GameHelpers.WriteColoredLine("\nYou find a giant wolf. But she seems friendly." +
+                "\nWould you like to attack the wolf? (yes/no)", ConsoleColor.Yellow);
             string? playerChoice = Console.ReadLine()?.ToLower();
             if (playerChoice == "yes")
             {
-
+                bool hasSword = inventory.Items.Any(x => x.Name.ToLower() == "enchanted sword");
+                if (hasSword)
+                {
+                    GameHelpers.StrawberryDropper(player, gameDifficulty);
+                }
+                else
+                {
+                    GameHelpers.WriteColoredLine("\nYou attack the wolf and she attacks you back." +
+                        "\nYou lose 20 health.", ConsoleColor.Red);
+                    player.Health -= 20;
+                }
             }
-            if (enemyDead)
+            else Console.WriteLine("\nYou cower back to safety unscathed.");
+
+            return player;
+        }
+
+        static Player FireSerpentEncounter(Player player)
+        {
+            GameHelpers.WriteColoredLine("\nYou encounter a serpent of fire. She attacks you.", ConsoleColor.Red);
+            GameHelpers.WriteColoredLine("\nYou lose 40 health, but she spares your life.", ConsoleColor.Red);
+            player.Health -= 40;
+
+            return player;
+        }
+
+        static Player MindWizardEncounter(Player player, Inventory inventory)
+        {
+            GameHelpers.WriteColoredLine("\nYou encounter a mind wizard.\n", ConsoleColor.Gray);
+            bool hasTinFoil = inventory.Items.Any(x => x.Name.ToLower() == "tin foil hat");
+            bool hasLauncher = inventory.Items.Any(x => x.Name.ToLower() == "banana peel launcher");
+            if (hasTinFoil)
             {
-                StrawberryDropper();
-                Console.WriteLine("You have killed the wolf.");
+                GameHelpers.WriteColoredLine("\nThe mind wizard is not able to control your mind because of your awesome tin foil hat..." +
+                    "\nYou snatch one of his strawberries and exit swiftly." +
+                    "\nUnfortunately your hat was destroyed in battle.", ConsoleColor.Green);
+                player.Strawberry++;
+                inventory.RemoveItem("tin foil hat");
             }
+            else if (hasLauncher)
+            {
+                GameHelpers.WriteColoredLine("\nYou use your banana peel launcher and the mind wizard slips and falls comically." +
+                    "\nUnfortunately you are not able to steal any strawberries.", ConsoleColor.Cyan);
+                inventory.RemoveItem("banana peel launcher");
+            }
+            else
+            {
+                GameHelpers.WriteColoredLine("You have no way of defending yourself. The mind wizard tricks you into giving him a strawberry and slaps you" +
+                    "\nYou lose 5 health.", ConsoleColor.Red);
+                if (player.Strawberry > 0) player.Strawberry--;
+                player.Health -= 5;
+            }
+
+            return player;
         }
 
-        static void FireSerpentEncounter()
-        { 
-            // Not winnable
-            // But only does damage and stops the player from getting to the strawberry
-            // Attack?
-            // Run?
-            Console.WriteLine("Serpent");
-        }
-
-        static void MindReaderEncounter()
+        static Player PolarBearEncounter(Player player, Inventory inventory)
         {
-            // Ask if player has protective helmet
-            // if not then the mind reader knows what they are up to and stops them
-            // Attack?
-            // Run?
-            Console.WriteLine("Mind reader");
-        }
+            GameHelpers.WriteColoredLine("\nYou encounter a polar bear." +
+                "\nYes in a random forest. Crazy I know.", ConsoleColor.Yellow);
+            bool hasCocaCola = inventory.Items.Any(x => x.Name.ToLower() == "coca-cola bottle");
+            bool hasLaughingGas = inventory.Items.Any(x => x.Name.ToLower() == "laughing gas grenade");
 
-        static void PolarBearEncounter()
-        {
-            // Weakness: Coca-cola
-            // If the player has coca-cola they can give it the bear and it is entertained
-            Console.WriteLine("Talking polar bear");
-        }
+            if (hasCocaCola)
+            {
+                GameHelpers.WriteColoredLine("\nYou offer the bear a coca-cola." +
+                    "\nThe bear gladly takes it and gives you 1 strawberry in exchange.", ConsoleColor.Green);
+                inventory.RemoveItem("coca-cola bottle");
+                player.Strawberry++;
+            }
+            else if (hasLaughingGas)
+            {
+                GameHelpers.WriteColoredLine("\nYou throw the laughing gas grenade on the ground." +
+                    "\nYou flee while the enemy is laughing uncontrollably. However, you get no strawberries.", ConsoleColor.Cyan);
+                inventory.RemoveItem("laughing gas grenade");
+            }
+            else
+            {
+                GameHelpers.WriteColoredLine("\nYou have nothing to offer the bear. It attacks you and you lose 20 health.", ConsoleColor.Red);
+                player.Health -= 20;
+            }
 
-        // Helper to decide how many strawberries should be dropped
-        static void StrawberryDropper()
-        {
-            Player player = new();
-            int maxDropChance = gameDifficulty == 2 ? 3 : gameDifficulty == 3 ? 4 : 5;
-            int dropChance = RandomInstance.Next(1, maxDropChance + 1);
-
-            if (dropChance == 1) player.Strawberry++;
+            return player;
         }
-
-        static void ColouredLineHelper(string text, ConsoleColor colour)
-        { 
-            Console.ForegroundColor = colour;
-            Console.WriteLine(text);
-            Console.ResetColor();
-        }
+        
     }
 }
-
-// Check list:
-
-// Text input?
-// Variables?
-// Arithmetic operations?
-// Logic operations?
-// String operations?
-// Data structures?
-// Conditional statements?
-// Functions?
-// Coding best practices?
-/* 
-To do:
-
-- Implement village interaction
-- Implement inventory
-- Implement attack method
-*/
