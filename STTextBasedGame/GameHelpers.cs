@@ -15,6 +15,7 @@ namespace STTextBasedGame
                 1 => 100,
                 2 => 66,
                 3 => 33,
+                _ => 0
             };
 
             int randomNum = new Random().Next(1, 101);

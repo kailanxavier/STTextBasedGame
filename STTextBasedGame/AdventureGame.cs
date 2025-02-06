@@ -1,8 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using System.Dynamic;
-
-namespace STTextBasedGame
+﻿namespace STTextBasedGame
 {
     class AdventureGame
     {
@@ -29,7 +25,8 @@ namespace STTextBasedGame
             {
                 if (player.Health <= 0) // Lose condition
                 {
-                    Console.WriteLine("You were warned. They showed no mercy.");
+                    GameHelpers.WriteColoredLine("You were warned. They showed no mercy.", ConsoleColor.Red);
+                    Console.ReadLine();
                     break;
                 }
 
@@ -84,11 +81,17 @@ namespace STTextBasedGame
             {
                 GameHelpers.WriteColoredLine("\nYou returned to the kingdom and brought all your friends strawberries." +
                     "\nYou win!", ConsoleColor.Green);
+
+                    GameHelpers.WriteColoredLine("\n\nPress enter/return to close the window...", ConsoleColor.Yellow);
+                    Console.ReadLine();
             }
             else
             {
                 GameHelpers.WriteColoredLine("\nYou returned to the kingdom but you don't have enough strawberries. Jack eats you." +
-                    "\nYou lose!", ConsoleColor.Red);
+                    "\nYou lose!\n", ConsoleColor.Red);
+                    
+                    GameHelpers.WriteColoredLine("\n\nPress enter/return to close the window...", ConsoleColor.Yellow);
+                    Console.ReadLine();
             }
             return player;
         }
@@ -168,11 +171,11 @@ namespace STTextBasedGame
                             break;
                         case 4:
                             randomItemName = "Laughing Gas Grenade";
-                            inventory.AddItem(new Item(randomItemName, "This can be used against the mind wizard"));
+                            inventory.AddItem(new Item(randomItemName, "This can be used against the polar bear."));
                             break;
                         case 5:
                             randomItemName = "Banana Peel Launcher";
-                            inventory.AddItem(new Item(randomItemName, "This item can be used to escape any enemy."));
+                            inventory.AddItem(new Item(randomItemName, "This can be used agaisnt the mind wizard."));
                             break;
                     }
                     GameHelpers.WriteColoredLine($"You open the chest and find: {randomItemName}", ConsoleColor.Green);
@@ -224,6 +227,7 @@ namespace STTextBasedGame
                     break;
                 default:
                     DisplayErrorMessage();
+                    SetDifficulty();
                     break;
             }
         }

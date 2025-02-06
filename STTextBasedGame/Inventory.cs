@@ -11,7 +11,7 @@ namespace STTextBasedGame
 
         public Inventory()
         {
-            items = [];
+            items = new List<Item>();
         }
 
         public void AddItem(Item item)
