@@ -9,7 +9,7 @@ namespace STTextBasedGame
 {
     public static class GameHelpers
     {
-        public static void StrawberryDropper(Player player, Difficulty difficulty)
+        public static void StrawberryDropper(Player player, int difficulty)
         {
             int strawberries = Math.Max(1, 5 / (int)difficulty); // Drops fewer strawberries as difficulty increases
             player.Strawberry += strawberries;
