@@ -3,33 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static STTextBasedGame.AdventureGame;
 
 namespace STTextBasedGame
 {
     public static class GameHelpers
     {
-        public static Player StrawberryDropper(Player player, int gameDifficulty)
+        public static void StrawberryDropper(Player player, Difficulty difficulty)
         {
-            int dropChance = gameDifficulty switch
-            {
-                1 => 100,
-                2 => 66,
-                3 => 33,
-            };
-
-            int randomNum = new Random().Next(1, 101);
-
-            if (randomNum <= dropChance)
-            {
-                WriteColoredLine("\nYou have defeated the enemy and received a strawberry.", ConsoleColor.Green);
-                player.Strawberry++;
-            }
-            else
-            {
-                WriteColoredLine("\nYou have defeated the enemy but no strawberries were dropped.", ConsoleColor.Red);
-            }
-            return player;
+            int strawberries = Math.Max(1, 5 / (int)difficulty); // Drops fewer strawberries as difficulty increases
+            player.Strawberry += strawberries;
+            WriteColoredLine($"\nYou defeated the wolf and looted it for {strawberries} strawberries!", ConsoleColor.Green);
         }
+
         public static void WriteColoredLine(string text, ConsoleColor colour)
         {
             Console.ForegroundColor = colour;

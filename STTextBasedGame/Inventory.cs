@@ -6,45 +6,35 @@ namespace STTextBasedGame
 {
     public class Inventory
     {
-        // using a list here because the length needs to be edited uwu
-        private List<Item> items;
-
-        public Inventory()
-        {
-            items = [];
-        }
+        private List<Item> Items { get; } = new();
 
         public void AddItem(Item item)
         {
-            items.Add(item);
-
+            Items.Add(item);
         }
 
         public void RemoveItem(string itemName)
-        { 
-            var item = items.Find(x => x.Name.ToLower() == itemName.ToLower());
-            if (item != null) items.Remove(item);
+        {
+            Items.RemoveAll(x => x.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase));
+        }
+
+        public bool HasItem(string itemName)
+        {
+            return Items.Any(x => x.Name.Equals(itemName, StringComparison.OrdinalIgnoreCase));
         }
 
         public void ListItems()
         {
-            if (items.Count == 0)
+            if (Items.Count == 0)
             {
                 GameHelpers.WriteColoredLine("\nYou have no items.", ConsoleColor.Yellow);
+                return;
             }
-            else
-            {
-                GameHelpers.WriteColoredLine("\nInventory: ", ConsoleColor.Yellow);
-                foreach (var item in items)
+                GameHelpers.WriteColoredLine("\nYour inventory: ", ConsoleColor.Yellow);
+                foreach (var item in Items)
                 {
-                    Console.WriteLine("\n" + item);
+                    Console.WriteLine($"{item.Name}: {item.Description}");
                 }
-            }
-        }
-
-        public List<Item> Items
-        { 
-            get { return items; }
         }
     }
 }
