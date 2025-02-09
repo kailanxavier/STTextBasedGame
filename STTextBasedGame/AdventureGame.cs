@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Numerics;
 
 namespace STTextBasedGame
 {
@@ -49,13 +48,11 @@ namespace STTextBasedGame
 
         private static void SetDifficulty()
         {
-            Console.WriteLine("\nPlease choose a game difficulty: ");
-            Console.WriteLine("\n1. Easy");
-            Console.WriteLine("2. Medium");
-            Console.WriteLine("3. Hard");
+            Console.WriteLine("\nPlease choose a game difficulty: \n");
+            Console.WriteLine("\n1. Easy\n2. Medium\n3. Hard");
             Console.WriteLine("\nYour choice: ");
 
-            if (Enum.TryParse(Console.ReadLine(), out Difficulty difficulty))
+            if (Enum.TryParse(Console.ReadLine(), out Difficulty difficulty) && Enum.IsDefined(typeof(Difficulty), difficulty))
             {
                 gameDifficulty = difficulty;
             }

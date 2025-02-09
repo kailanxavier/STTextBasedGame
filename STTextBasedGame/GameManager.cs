@@ -13,6 +13,7 @@ namespace STTextBasedGame
         private readonly Inventory _inventory;
         private readonly Difficulty _difficulty;
         private readonly Random _randomInstance;
+        private const string CallA7X = "1999";
 
         public GameManager(Player player, Inventory inventory, Difficulty difficulty, Random randomInstance)
         {
@@ -61,7 +62,7 @@ namespace STTextBasedGame
                     case "6":
                         Environment.Exit(0);
                         break;
-                    case "6661": // Easter egg
+                    case CallA7X: // Easter egg
                         GameHelpers.WriteColoredLine("\nHow did you even find this?", ConsoleColor.Yellow);
                         GameHelpers.WriteColoredLine("You encounter A7X, they give you 100 strawberries.", ConsoleColor.Yellow);
                         _player.Strawberry += 100;
@@ -252,18 +253,18 @@ namespace STTextBasedGame
             Console.WriteLine("Please choose a valid option.");
         }
 
+        private static readonly List<Item> _randomItems = new()
+        {
+            new("Coca-Cola Bottle", "This can be used to please the polar bear."),
+            new("Tin Foil Hat", "This can be used against the mind wizard."),
+            new("Enchanted Sword", "This can be used against the giant wolf if you choose to attack."),
+            new("Laughing Gas Grenade", "This can be used against the polar bear."),
+            new("Banana Peel Launcher", "This can be used against the mind wizard.")
+        };
+
         private Item GetRandomItem()
         {
-            var randomItems = new List<Item>
-            {
-                new("Coca-Cola Bottle", "This can be used to please the polar bear."),
-                new("Tin Foil Hat", "This can be used against the mind wizard."),
-                new("Enchanted Sword", "This can be used against the giant wolf if you choose to attack."),
-                new("Laughing Gas Grenade", "This can be used against the polar bear."),
-                new("Banana Peel Launcher", "This can be used against the mind wizard.")
-            };
-
-            return randomItems[_randomInstance.Next(randomItems.Count)];
+            return _randomItems[_randomInstance.Next(_randomItems.Count)];
         }
     }
 
