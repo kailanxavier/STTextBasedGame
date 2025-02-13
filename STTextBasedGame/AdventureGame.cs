@@ -48,7 +48,7 @@ namespace STTextBasedGame
 
         private static void SetDifficulty()
         {
-            Console.WriteLine("\nPlease choose a game difficulty: \n");
+            Console.WriteLine("\nPlease choose a game difficulty: ");
             Console.WriteLine("\n1. Easy\n2. Medium\n3. Hard");
             Console.WriteLine("\nYour choice: ");
 
