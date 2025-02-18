@@ -14,6 +14,8 @@ namespace STTextBasedGame
         private readonly Difficulty _difficulty;
         private readonly Random _randomInstance;
         private const string CallA7X = "1999";
+        private int maxHealth = 100;
+        private int restCounter = 0;
 
         public GameManager(Player player, Inventory inventory, Difficulty difficulty, Random randomInstance)
         {
@@ -33,7 +35,7 @@ namespace STTextBasedGame
                 if (_player.Health <= 0) // Lose condition
                 {
                     GameHelpers.WriteColoredLine("\nYou died." + "You were warned. They showed no mercy.", ConsoleColor.Red);
-                    Console.ReadLine();
+                    Console.ReadKey();
                     break;
                 }
 
@@ -97,8 +99,20 @@ namespace STTextBasedGame
 
         private void Rest()
         {
-            GameHelpers.WriteColoredLine("\nYou rest for a few hours...\nYou gain 10 health.", ConsoleColor.Green);
-            _player.Health = Math.Min(_player.Health + 10, 100);
+            int restRegen = 1;
+            restCounter++;
+
+            // Add 1 to player health whenever they rest until health reaches 100
+            if (restCounter <= 3)
+            {
+                System.Console.WriteLine("THIS IS THE REST COUNTER: " + restCounter);
+                GameHelpers.WriteColoredLine("\nYou rest for a few hours...\nYou gain 1 health.", ConsoleColor.Green);
+                _player.Health = Math.Min(_player.Health + restRegen, maxHealth);
+            }
+            else
+            {
+                GameHelpers.WriteColoredLine("You have rested too much. Please try again in: ", ConsoleColor.Red);
+            }
         }
 
         private void VisitVillage()
@@ -110,8 +124,9 @@ namespace STTextBasedGame
             {
                 if (_player.Strawberry > 0)
                 {
+                    int regenHealthAmount = 20;
                     GameHelpers.WriteColoredLine("\nYou trade 1 strawberry for the potion and restore 20 health.", ConsoleColor.Green);
-                    _player.Health = Math.Min(_player.Health + 20, 100);
+                    _player.Health = Math.Min(_player.Health + regenHealthAmount, maxHealth);
                     _player.Strawberry--;
                 }
                 else
@@ -161,6 +176,7 @@ namespace STTextBasedGame
 
         private void WolfEncounter()
         {
+            int wolfDamage = 20;
             GameHelpers.WriteColoredLine("\nYou find a giant wolf. But she seems friendly.\nWould you like to attack the wolf? (yes/no)", ConsoleColor.Yellow);
             string? playerChoice = Console.ReadLine()?.ToLower();
 
@@ -173,7 +189,7 @@ namespace STTextBasedGame
                 else
                 {
                     GameHelpers.WriteColoredLine("\nYou attack the wolf and she attacks you back.\nYou lose 20 health.", ConsoleColor.Red);
-                    _player.Health -= 20;
+                    _player.Health -= wolfDamage;
                 }
             }
             else
@@ -184,12 +200,14 @@ namespace STTextBasedGame
 
         private void FireSerpentEncounter()
         {
+            int serpentDamage = 40; // Serpent damage
             GameHelpers.WriteColoredLine("\nYou encounter a serpent of fire. She attacks you.\nYou lose 40 health, but she spares your life.", ConsoleColor.Red);
-            _player.Health -= 40;
+            _player.Health -= serpentDamage;
         }
 
         private void MindWizardEncounter()
         {
+            int wizardSlapDamage = 5;
             GameHelpers.WriteColoredLine("\nYou encounter a mind wizard.\n", ConsoleColor.Gray);
 
             if (_inventory.HasItem("tin foil hat"))
@@ -207,12 +225,13 @@ namespace STTextBasedGame
             {
                 GameHelpers.WriteColoredLine("\nYou have no way of defending yourself. The mind wizard tricks you into giving him a strawberry and slaps you.\nYou lose 5 health.", ConsoleColor.Red);
                 if (_player.Strawberry > 0) _player.Strawberry--;
-                _player.Health -= 5;
+                _player.Health -= wizardSlapDamage;
             }
         }
 
         private void PolarBearEncounter()
         {
+            int polarBearDamage = 20;
             GameHelpers.WriteColoredLine("\nYou encounter a polar bear.\nYes, in a random forest. Crazy, I know.", ConsoleColor.Yellow);
 
             if (_inventory.HasItem("coca-cola bottle"))
@@ -229,7 +248,7 @@ namespace STTextBasedGame
             else
             {
                 GameHelpers.WriteColoredLine("\nYou have nothing to offer the bear. It attacks you and you lose 20 health.", ConsoleColor.Red);
-                _player.Health -= 20;
+                _player.Health -= polarBearDamage;
             }
         }
 
@@ -244,13 +263,13 @@ namespace STTextBasedGame
                 GameHelpers.WriteColoredLine("\nYou returned to the kingdom but you don't have enough strawberries. Jack eats you.\nYou lose!", ConsoleColor.Red);
             }
 
-            GameHelpers.WriteColoredLine("\n\nPress enter/return to close the window...", ConsoleColor.Yellow);
-            Console.ReadLine();
+            GameHelpers.WriteColoredLine("\n\nPress any key to close the window...", ConsoleColor.Yellow);
+            Console.ReadKey();
         }
 
         private static void DisplayErrorMessage()
         {
-            Console.WriteLine("Please choose a valid option.");
+            GameHelpers.WriteColoredLine("Please choose a valid option.", ConsoleColor.Red);
         }
 
         private static readonly List<Item> _randomItems = new()
@@ -268,6 +287,6 @@ namespace STTextBasedGame
         }
     }
 
-    // Enum for encounter types
+    // Encounter types
     public enum EncounterType { Wolf, FireSerpent, PolarBear, MindWizard, Strawberry, Item }
 }
