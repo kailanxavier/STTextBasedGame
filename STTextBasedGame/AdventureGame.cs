@@ -1,25 +1,30 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace STTextBasedGame
 {
     public class AdventureGame
     {
-        private static Difficulty gameDifficulty;
+        private static Difficulty gameDifficulty; // Game difficulty enum
 
         static void Main(string[] args)
         {
+            // Initialize player and inventory
             var player = new Player { Name = GetValidPlayerName(), Health = 100, Strawberry = 0 };
             var inventory = new Inventory();
 
-            DisplayWelcomeMessage(player.Name); // Welcome
+            DisplayWelcomeMessage(player.Name);
 
             SetDifficulty(); // Set game difficulty
 
             var randomInstance = new Random();
             var gameManager = new GameManager(player, inventory, gameDifficulty, randomInstance);
+
+            // Call start function from GameManager script
             gameManager.Start();
         }
 
+        // Get string from console
         static string GetValidPlayerName()
         {
             string? name;

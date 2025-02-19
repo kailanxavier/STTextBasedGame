@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,13 +10,16 @@ namespace STTextBasedGame
 {
     public class GameManager
     {
+        #region Core
         private readonly Player _player;
         private readonly Inventory _inventory;
         private readonly Difficulty _difficulty;
         private readonly Random _randomInstance;
-        private const string CallA7X = "1999";
+        #endregion
+
+        private const string CallA7X = "1999"; // Easter egg string
         private int maxHealth = 100;
-        private int restCounter = 0;
+        private int restCounter = 0; // keep track of rest counter
 
         public GameManager(Player player, Inventory inventory, Difficulty difficulty, Random randomInstance)
         {
@@ -23,7 +27,6 @@ namespace STTextBasedGame
             _inventory = inventory;
             _difficulty = difficulty;
             _randomInstance = randomInstance;
-
         }
 
         // Start the game
@@ -42,6 +45,7 @@ namespace STTextBasedGame
                 ShowStatistics();
                 DisplayMenu();
 
+                // Use player input to determine what function to call
                 string choice = Console.ReadLine() ?? string.Empty;
                 switch (choice)
                 {
@@ -102,16 +106,29 @@ namespace STTextBasedGame
             int restRegen = 1;
             restCounter++;
 
+            int cooldownLength = 5; // duration of cooldown
+            Stopwatch cooldown = new();
+
             // Add 1 to player health whenever they rest until health reaches 100
             if (restCounter <= 3)
             {
-                System.Console.WriteLine("THIS IS THE REST COUNTER: " + restCounter);
                 GameHelpers.WriteColoredLine("\nYou rest for a few hours...\nYou gain 1 health.", ConsoleColor.Green);
                 _player.Health = Math.Min(_player.Health + restRegen, maxHealth);
             }
+            // This implements a cooldown to prevent the player from resting too much 
             else
             {
-                GameHelpers.WriteColoredLine("You have rested too much. Please try again in: ", ConsoleColor.Red);
+                cooldown.Start(); // start cooldown stopwatch
+
+                while (cooldown.Elapsed.TotalSeconds < cooldownLength)
+                {
+                    GameHelpers.WriteColoredLine($"You have rested too much. You can rest again in {cooldownLength - cooldown.Elapsed.TotalSeconds:F0} seconds", ConsoleColor.Red);
+                    Thread.Sleep(1000);
+                }
+
+                cooldown.Stop();
+                restCounter = 0; // rest rest counter
+                GameHelpers.WriteColoredLine("You can now rest again.", ConsoleColor.Green);
             }
         }
 
