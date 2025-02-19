@@ -31,5 +31,41 @@ namespace STTextBasedGame
             Console.ResetColor();
         }
 
+        // Display player statistics
+        public static void ShowStatistics(Player _player)
+        {
+            Console.WriteLine($"\n{_player.Name}'s statistics: ");
+            Console.WriteLine($"Health: {_player.Health}");
+            Console.WriteLine($"Strawberries: {_player.Strawberry}");
+        }
+
+        // Display main menu
+        public static void DisplayMenu(bool isCooldownActive)
+        {
+            Console.WriteLine("\nWhat's your next move?\n" +
+                              "\n1. Explore the forest" +
+                              "\n2. Visit the village" +
+                              (isCooldownActive ? "\n3. Rest (On Cooldown)" : "\n3. Rest") +
+                              "\n4. Inventory" +
+                              "\n5. Return to the kingdom" +
+                              "\n6. Quit");
+            Console.WriteLine("\nYour choice: ");
+        }
+
+        public static void EasterEgg()
+        {
+            WriteColoredLine("\nHow did you even find this?", ConsoleColor.Yellow);
+            WriteColoredLine("You encounter A7X, they give you 100 strawberries.", ConsoleColor.Yellow);
+        }
+
+        public static void GameOver()
+        {
+            WriteColoredLine("\nYou died. You were warned. They showed no mercy.", ConsoleColor.Red);
+            string result = "Lost!";
+            GameManager.GameHistory(result);
+            WriteColoredLine("\nPress any key to close the window...", ConsoleColor.Yellow);
+            Console.ReadKey();
+        }
+
     }
 }

@@ -44,13 +44,12 @@ namespace STTextBasedGame
             {
                 if (_player.Health <= 0) // Lose condition
                 {
-                    GameHelpers.WriteColoredLine("\nYou died. You were warned. They showed no mercy.", ConsoleColor.Red);
-                    Console.ReadKey();
+                    GameHelpers.GameOver();
                     break;
                 }
 
-                ShowStatistics();
-                DisplayMenu();
+                GameHelpers.ShowStatistics(_player);
+                GameHelpers.DisplayMenu(_isCooldownActive);
 
                 // Use player input to determine what function to call
                 string choice = Console.ReadLine() ?? string.Empty;
@@ -84,15 +83,14 @@ namespace STTextBasedGame
                         _inventory.ListItems();
                         break;
                     case "5":
-                        EndGame();
+                        ReturnToKingdom();
                         isPlaying = false;
                         break;
                     case "6":
                         Environment.Exit(0);
                         break;
                     case CallA7X: // Easter egg
-                        GameHelpers.WriteColoredLine("\nHow did you even find this?", ConsoleColor.Yellow);
-                        GameHelpers.WriteColoredLine("You encounter A7X, they give you 100 strawberries.", ConsoleColor.Yellow);
+                        GameHelpers.EasterEgg();
                         _player.Strawberry += 100;
                         break;
                     default:
@@ -100,28 +98,7 @@ namespace STTextBasedGame
                         break;
                 }
             }
-        }
-
-        // Display player statistics
-        private void ShowStatistics()
-        {
-            Console.WriteLine($"\n{_player.Name}'s statistics: ");
-            Console.WriteLine($"Health: {_player.Health}");
-            Console.WriteLine($"Strawberries: {_player.Strawberry}");
-        }
-
-        // Display main menu
-        private static void DisplayMenu()
-        {
-            Console.WriteLine("\nWhat's your next move?\n" +
-                              "\n1. Explore the forest" +
-                              "\n2. Visit the village" +
-                              (_isCooldownActive? "\n3. Rest (On Cooldown)" : "\n3. Rest") +
-                              "\n4. Inventory" +
-                              "\n5. Return to the kingdom" +
-                              "\n6. Quit");
-            Console.WriteLine("\nYour choice: ");
-        }
+        } 
 
         private async Task RestAsync()
         {
@@ -306,19 +283,38 @@ namespace STTextBasedGame
             }
         }
 
-        private void EndGame()
+        private void ReturnToKingdom()
         {
             if (_player.Strawberry >= 10)
             {
+                string result = "Won!";
+                GameHistory(result);
                 GameHelpers.WriteColoredLine("\nYou returned to the kingdom and brought all your friends strawberries.\nYou win!", ConsoleColor.Green);
             }
             else
             {
+                string result = "Lost!";
+                GameHistory(result);
                 GameHelpers.WriteColoredLine("\nYou returned to the kingdom but you don't have enough strawberries. Jack eats you.\nYou lose!", ConsoleColor.Red);
             }
 
             GameHelpers.WriteColoredLine("\n\nPress any key to close the window...", ConsoleColor.Yellow);
             Console.ReadKey();
+        }
+
+        public static void GameHistory(string result)
+        {
+            string filePath = "../result.txt";
+
+            try
+            {
+                File.AppendAllText(filePath, result + Environment.NewLine);
+                Console.WriteLine("Result saved to result.txt");
+            } 
+            catch (Exception ex)
+            {
+                Console.WriteLine("An error occurred: " + ex);
+            }
         }
 
         private static void DisplayErrorMessage()
