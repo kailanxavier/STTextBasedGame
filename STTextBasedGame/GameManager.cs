@@ -24,7 +24,7 @@ namespace STTextBasedGame
 
         #region Cooldown settings
         private static bool _isCooldownActive = false;
-        private int cooldownLength = 5;
+        private int cooldownLength = 20;
         private Stopwatch cooldown = new();
         #endregion
 
