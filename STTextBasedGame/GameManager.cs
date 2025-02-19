@@ -22,6 +22,12 @@ namespace STTextBasedGame
         private int restCounter = 0; // keeps track of rest counter
         private int wolfIgnored = 0; // keeps track of how many times the player ignored the wolf
 
+        #region Cooldown settings
+        private static bool _isCooldownActive = false;
+        private int cooldownLength = 5;
+        private Stopwatch cooldown = new();
+        #endregion
+
         public GameManager(Player player, Inventory inventory, Difficulty difficulty, Random randomInstance)
         {
             _player = player;
@@ -31,14 +37,14 @@ namespace STTextBasedGame
         }
 
         // Start the game
-        public void Start()
+        public async Task StartAsync()
         {
             bool isPlaying = true;
             while (isPlaying)
             {
                 if (_player.Health <= 0) // Lose condition
                 {
-                    GameHelpers.WriteColoredLine("\nYou died." + "You were warned. They showed no mercy.", ConsoleColor.Red);
+                    GameHelpers.WriteColoredLine("\nYou died. You were warned. They showed no mercy.", ConsoleColor.Red);
                     Console.ReadKey();
                     break;
                 }
@@ -57,14 +63,21 @@ namespace STTextBasedGame
                         VisitVillage();
                         break;
                     case "3":
-                        // If player health is already at 100 don't let them rest
                         if (_player.Health < 100)
                         {
-                            Rest();
+                            if (!_isCooldownActive) // Check if cooldown is active
+                            {
+                                await RestAsync();
+                            }
+                            else
+                            {
+                                GameHelpers.WriteColoredLine($"\nYou must wait {cooldownLength - cooldown.Elapsed.TotalSeconds:F0}s before resting again.", ConsoleColor.Red);
+                            }
                         }
                         else
                         {
-                            GameHelpers.WriteColoredLine("\nYou can't do that right now.", ConsoleColor.Red); 
+                            restCounter = 0;
+                            GameHelpers.WriteColoredLine("\nYou can't do that right now.", ConsoleColor.Red);
                         }
                         break;
                     case "4":
@@ -103,56 +116,44 @@ namespace STTextBasedGame
             Console.WriteLine("\nWhat's your next move?\n" +
                               "\n1. Explore the forest" +
                               "\n2. Visit the village" +
-                              "\n3. Rest" +
+                              (_isCooldownActive? "\n3. Rest (On Cooldown)" : "\n3. Rest") +
                               "\n4. Inventory" +
                               "\n5. Return to the kingdom" +
                               "\n6. Quit");
             Console.WriteLine("\nYour choice: ");
         }
 
-        private void Rest()
+        private async Task RestAsync()
         {
             int restRegen = 10;
             restCounter++;
 
-            int cooldownLength = 5; // duration of cooldown
-            Stopwatch cooldown = new();
-
-            // Add 1 to player health whenever they rest until health reaches 100
+            // Add 10 to player health whenever they rest until health reaches 100
             if (restCounter <= 3)
             {
                 GameHelpers.WriteColoredLine("\nYou rest for a few hours...\nYou gain 10 health.", ConsoleColor.Green);
                 _player.Health = Math.Min(_player.Health + restRegen, maxHealth);
             }
-            // This implements a cooldown to prevent the player from resting too much 
             else
             {
-                cooldown.Start(); // start cooldown stopwatch
+                // Start the cooldown
+                _isCooldownActive = true;
+                cooldown.Restart();
+                GameHelpers.WriteColoredLine("\nYou have rested too much. You must wait before resting again.", ConsoleColor.Red);
 
-                Console.WriteLine();
-                while (cooldown.Elapsed.TotalSeconds < cooldownLength)
-                {
-                    GameHelpers.WriteColoredLine($"You have rested too much. You can rest again in {cooldownLength - cooldown.Elapsed.TotalSeconds:F0}s", ConsoleColor.Red);
-
-                    // Clear any existing input in buffer
-                    while (Console.KeyAvailable)
-                    {
-                        Console.ReadKey(true);
-                    }
-
-                    Thread.Sleep(1000);
-
-                    // Clear any input that happened during thread sleep
-                    while (Console.KeyAvailable)
-                    {
-                        Console.ReadKey(true);
-                    }
-                }
-
-                cooldown.Stop();
-                restCounter = 0; // rest rest counter
-                GameHelpers.WriteColoredLine("\nYou can now rest again.", ConsoleColor.Green);
+                _ = RunCooldownAsync();
             }
+        }
+
+        private async Task RunCooldownAsync()
+        {
+            GameHelpers.WriteColoredLine($"You can rest again in {cooldownLength - cooldown.Elapsed.TotalSeconds:F0}s", ConsoleColor.Red);
+            await Task.Delay(TimeSpan.FromSeconds(cooldownLength));
+
+            cooldown.Stop();
+            _isCooldownActive = false;
+            restCounter = 0; // Reset the rest counter after cooldown
+            GameHelpers.WriteColoredLine("\nYou can now rest again.", ConsoleColor.Green);
         }
 
         private void VisitVillage()

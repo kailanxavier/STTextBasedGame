@@ -7,7 +7,7 @@ namespace STTextBasedGame
     {
         private static Difficulty gameDifficulty; // Game difficulty enum
 
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             // Initialize player and inventory
             var player = new Player { Name = GetValidPlayerName(), Health = 100, Strawberry = 0 };
@@ -21,7 +21,7 @@ namespace STTextBasedGame
             var gameManager = new GameManager(player, inventory, gameDifficulty, randomInstance);
 
             // Call start function from GameManager script
-            gameManager.Start();
+            await gameManager.StartAsync();
         }
 
         // Get string from console
