@@ -298,7 +298,7 @@ namespace STTextBasedGame
                 GameHelpers.WriteColoredLine("\nYou returned to the kingdom but you don't have enough strawberries. Jack eats you.\nYou lose!", ConsoleColor.Red);
             }
 
-            GameHelpers.WriteColoredLine("\n\nPress any key to close the window...", ConsoleColor.Yellow);
+            GameHelpers.WriteColoredLine("\nPress any key to close the window...", ConsoleColor.Yellow);
             Console.ReadKey();
         }
 
@@ -309,7 +309,7 @@ namespace STTextBasedGame
             try
             {
                 File.AppendAllText(filePath, result + Environment.NewLine);
-                Console.WriteLine("Result saved to result.txt");
+                Console.WriteLine("\nResult saved to result.txt");
             } 
             catch (Exception ex)
             {

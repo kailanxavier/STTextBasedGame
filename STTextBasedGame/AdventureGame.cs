@@ -5,7 +5,7 @@ namespace STTextBasedGame
 {
     public class AdventureGame
     {
-        private static Difficulty gameDifficulty; // Game difficulty enum
+        private static Difficulty gameDifficulty;
 
         static async Task Main(string[] args)
         {
@@ -13,7 +13,7 @@ namespace STTextBasedGame
             var player = new Player { Name = GetValidPlayerName(), Health = 100, Strawberry = 0 };
             var inventory = new Inventory();
 
-            DisplayWelcomeMessage(player.Name);
+            GameHelpers.DisplayWelcomeMessage(player.Name);
 
             SetDifficulty(); // Set game difficulty
 
@@ -43,19 +43,9 @@ namespace STTextBasedGame
             return name;
         }
 
-        private static void DisplayWelcomeMessage(string playerName)
-        {
-            Console.WriteLine($"\nGreetings {playerName}, collect at least 10 strawberries to win.\n" +
-                              "Once you have 10 or more strawberries, you may return to the kingdom.\n" +
-                              "The more the merrier.\n" +
-                              "But be careful... they are merciless.");
-        }
-
         private static void SetDifficulty()
         {
-            Console.WriteLine("\nPlease choose a game difficulty: ");
-            Console.WriteLine("\n1. Easy\n2. Medium\n3. Hard");
-            Console.WriteLine("\nYour choice: ");
+            GameHelpers.SetDifficulty();
 
             if (Enum.TryParse(Console.ReadLine(), out Difficulty difficulty) && Enum.IsDefined(typeof(Difficulty), difficulty))
             {

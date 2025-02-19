@@ -24,6 +24,7 @@ namespace STTextBasedGame
             WriteColoredLine($"\nYou defeated the wolf and looted it for {strawberries} strawberries!", ConsoleColor.Green);
         }
 
+        // Helper to write coloured lines, has a lot of references and could break a lot of things
         public static void WriteColoredLine(string text, ConsoleColor colour)
         {
             Console.ForegroundColor = colour;
@@ -37,6 +38,14 @@ namespace STTextBasedGame
             Console.WriteLine($"\n{_player.Name}'s statistics: ");
             Console.WriteLine($"Health: {_player.Health}");
             Console.WriteLine($"Strawberries: {_player.Strawberry}");
+        }
+
+        public static void DisplayWelcomeMessage(string playerName)
+        {
+            Console.WriteLine($"\nGreetings {playerName}, collect at least 10 strawberries to win.\n" +
+                              "Once you have 10 or more strawberries, you may return to the kingdom.\n" +
+                              "The more the merrier.\n" +
+                              "But be careful... they are merciless.");
         }
 
         // Display main menu
@@ -56,6 +65,14 @@ namespace STTextBasedGame
         {
             WriteColoredLine("\nHow did you even find this?", ConsoleColor.Yellow);
             WriteColoredLine("You encounter A7X, they give you 100 strawberries.", ConsoleColor.Yellow);
+        }
+
+        public static void SetDifficulty()
+        {
+            // This displays the text for SetDifficulty
+            Console.WriteLine("\nPlease choose a game difficulty: ");
+            Console.WriteLine("\n1. Easy\n2. Medium\n3. Hard");
+            Console.WriteLine("\nYour choice: ");
         }
 
         public static void GameOver()
