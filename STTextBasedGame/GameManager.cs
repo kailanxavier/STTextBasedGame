@@ -19,7 +19,8 @@ namespace STTextBasedGame
 
         private const string CallA7X = "1999"; // Easter egg string
         private int maxHealth = 100;
-        private int restCounter = 0; // keep track of rest counter
+        private int restCounter = 0; // keeps track of rest counter
+        private int wolfIgnored = 0; // keeps track of how many times the player ignored the wolf
 
         public GameManager(Player player, Inventory inventory, Difficulty difficulty, Random randomInstance)
         {
@@ -56,7 +57,15 @@ namespace STTextBasedGame
                         VisitVillage();
                         break;
                     case "3":
-                        Rest();
+                        // If player health is already at 100 don't let them rest
+                        if (_player.Health < 100)
+                        {
+                            Rest();
+                        }
+                        else
+                        {
+                            GameHelpers.WriteColoredLine("\nYou can't do that right now.", ConsoleColor.Red); 
+                        }
                         break;
                     case "4":
                         _inventory.ListItems();
@@ -103,7 +112,7 @@ namespace STTextBasedGame
 
         private void Rest()
         {
-            int restRegen = 1;
+            int restRegen = 10;
             restCounter++;
 
             int cooldownLength = 5; // duration of cooldown
@@ -112,7 +121,7 @@ namespace STTextBasedGame
             // Add 1 to player health whenever they rest until health reaches 100
             if (restCounter <= 3)
             {
-                GameHelpers.WriteColoredLine("\nYou rest for a few hours...\nYou gain 1 health.", ConsoleColor.Green);
+                GameHelpers.WriteColoredLine("\nYou rest for a few hours...\nYou gain 10 health.", ConsoleColor.Green);
                 _player.Health = Math.Min(_player.Health + restRegen, maxHealth);
             }
             // This implements a cooldown to prevent the player from resting too much 
@@ -120,15 +129,29 @@ namespace STTextBasedGame
             {
                 cooldown.Start(); // start cooldown stopwatch
 
+                Console.WriteLine();
                 while (cooldown.Elapsed.TotalSeconds < cooldownLength)
                 {
-                    GameHelpers.WriteColoredLine($"You have rested too much. You can rest again in {cooldownLength - cooldown.Elapsed.TotalSeconds:F0} seconds", ConsoleColor.Red);
+                    GameHelpers.WriteColoredLine($"You have rested too much. You can rest again in {cooldownLength - cooldown.Elapsed.TotalSeconds:F0}s", ConsoleColor.Red);
+
+                    // Clear any existing input in buffer
+                    while (Console.KeyAvailable)
+                    {
+                        Console.ReadKey(true);
+                    }
+
                     Thread.Sleep(1000);
+
+                    // Clear any input that happened during thread sleep
+                    while (Console.KeyAvailable)
+                    {
+                        Console.ReadKey(true);
+                    }
                 }
 
                 cooldown.Stop();
                 restCounter = 0; // rest rest counter
-                GameHelpers.WriteColoredLine("You can now rest again.", ConsoleColor.Green);
+                GameHelpers.WriteColoredLine("\nYou can now rest again.", ConsoleColor.Green);
             }
         }
 
@@ -141,8 +164,8 @@ namespace STTextBasedGame
             {
                 if (_player.Strawberry > 0)
                 {
-                    int regenHealthAmount = 20;
-                    GameHelpers.WriteColoredLine("\nYou trade 1 strawberry for the potion and restore 20 health.", ConsoleColor.Green);
+                    int regenHealthAmount = 60;
+                    GameHelpers.WriteColoredLine("\nYou trade 1 strawberry for the potion and restore 60 health.", ConsoleColor.Green);
                     _player.Health = Math.Min(_player.Health + regenHealthAmount, maxHealth);
                     _player.Strawberry--;
                 }
@@ -194,6 +217,8 @@ namespace STTextBasedGame
         private void WolfEncounter()
         {
             int wolfDamage = 20;
+
+            // Introduce wolf
             GameHelpers.WriteColoredLine("\nYou find a giant wolf. But she seems friendly.\nWould you like to attack the wolf? (yes/no)", ConsoleColor.Yellow);
             string? playerChoice = Console.ReadLine()?.ToLower();
 
@@ -211,7 +236,18 @@ namespace STTextBasedGame
             }
             else
             {
-                Console.WriteLine("\nYou cower back to safety unscathed.");
+                wolfIgnored++; // +1 ignored
+
+                if (wolfIgnored >= 3)
+                {
+                    GameHelpers.WriteColoredLine("\nThe wolf gets tired of being ignored and attacks you. You lose 20 health.", ConsoleColor.Red);
+                    _player.Health -= wolfDamage;
+                    wolfIgnored = 0;
+                }
+                else
+                {
+                    GameHelpers.WriteColoredLine("\nYou ignore the wolf and continue your journey.", ConsoleColor.Yellow);
+                }
             }
         }
 
