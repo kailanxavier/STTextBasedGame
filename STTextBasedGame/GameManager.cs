@@ -19,13 +19,13 @@ namespace STTextBasedGame
 
         private const string CallA7X = "1999"; // Easter egg string
         private int maxHealth = 100;
-        private int restCounter = 0; // keeps track of rest counter
+        private int restCounter = 0; // keeps track of how many times the player rested
         private int wolfIgnored = 0; // keeps track of how many times the player ignored the wolf
 
         #region Cooldown settings
         private static bool _isCooldownActive = false;
         private int cooldownLength = 20;
-        private Stopwatch cooldown = new();
+        private Stopwatch cooldownTimer = new();
         #endregion
 
         public GameManager(Player player, Inventory inventory, Difficulty difficulty, Random randomInstance)
@@ -70,7 +70,7 @@ namespace STTextBasedGame
                             }
                             else
                             {
-                                GameHelpers.WriteColoredLine($"\nYou must wait {cooldownLength - cooldown.Elapsed.TotalSeconds:F0}s before resting again.", ConsoleColor.Red);
+                                GameHelpers.WriteColoredLine($"\nYou must wait {cooldownLength - cooldownTimer.Elapsed.TotalSeconds:F0}s before resting again.", ConsoleColor.Red);
                             }
                         }
                         else
@@ -100,6 +100,8 @@ namespace STTextBasedGame
             }
         } 
 
+        // disable the lacks await warning because this function does not require the await operator
+        #pragma warning disable
         private async Task RestAsync()
         {
             int restRegen = 10;
@@ -115,19 +117,20 @@ namespace STTextBasedGame
             {
                 // Start the cooldown
                 _isCooldownActive = true;
-                cooldown.Restart();
+                cooldownTimer.Restart();
                 GameHelpers.WriteColoredLine("\nYou have rested too much. You must wait before resting again.", ConsoleColor.Red);
 
                 _ = RunCooldownAsync();
             }
         }
+        #pragma warning restore // restore warning because other async methods might need it
 
         private async Task RunCooldownAsync()
         {
-            GameHelpers.WriteColoredLine($"You can rest again in {cooldownLength - cooldown.Elapsed.TotalSeconds:F0}s", ConsoleColor.Red);
+            GameHelpers.WriteColoredLine($"You can rest again in {cooldownLength - cooldownTimer.Elapsed.TotalSeconds:F0}s", ConsoleColor.Red);
             await Task.Delay(TimeSpan.FromSeconds(cooldownLength));
 
-            cooldown.Stop();
+            cooldownTimer.Stop();
             _isCooldownActive = false;
             restCounter = 0; // Reset the rest counter after cooldown
             GameHelpers.WriteColoredLine("\nYou can now rest again.", ConsoleColor.Green);
@@ -135,10 +138,12 @@ namespace STTextBasedGame
 
         private void VisitVillage()
         {
+            #pragma warning disable CS8602
+
             GameHelpers.WriteColoredLine("\nYou are offered a health potion in exchange for 1 strawberry.\nWould you like to purchase the potion? (yes/no)", ConsoleColor.Blue);
             string? playerChoice = Console.ReadLine()?.ToLower();
 
-            if (playerChoice == "yes")
+            if (playerChoice.Contains("yes"))
             {
                 if (_player.Strawberry > 0)
                 {
@@ -200,7 +205,7 @@ namespace STTextBasedGame
             GameHelpers.WriteColoredLine("\nYou find a giant wolf. But she seems friendly.\nWould you like to attack the wolf? (yes/no)", ConsoleColor.Yellow);
             string? playerChoice = Console.ReadLine()?.ToLower();
 
-            if (playerChoice == "yes")
+            if (playerChoice.Contains("yes"))
             {
                 if (_inventory.HasItem("enchanted sword"))
                 {
@@ -227,6 +232,7 @@ namespace STTextBasedGame
                     GameHelpers.WriteColoredLine("\nYou ignore the wolf and continue your journey.", ConsoleColor.Yellow);
                 }
             }
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
         }
 
         private void FireSerpentEncounter()

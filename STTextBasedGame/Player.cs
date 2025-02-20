@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace STTextBasedGame
 {
-        public class Player
-        {
-            public required string Name { get; set; }
-            public int Health { get; set; }
-            public int Strawberry { get; set; }
-        }
+    public class Player
+    {
+        public required string Name { get; set; }
+        public int Health { get; set; }
+        public int Strawberry { get; set; }
+    }
 }
