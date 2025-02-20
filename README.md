@@ -148,3 +148,4 @@ This method dynamically adjusts the reward based on the difficulty chosen by the
 ---
 ### 🪲 Known issues
 - The `GameHistory` method may fail if the `result.txt` file is locked by another process.
+- The target SDK is out of support and does not receive security updates. However, this was necessary to match the latest version installed on the WRS machines.
