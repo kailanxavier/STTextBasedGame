@@ -21,6 +21,14 @@ _**1. Clone the repository:**_
 git clone https://github.com/kailanxavier/STTextBasedGame.git 
 ```
 _**2. Run the STTextBasedGame.exe file in STTextBasedGame/STTextBasedGame/bin/Release/net7.0:**_
-[Game build](STTextBasedGame/STTextBasedGame/bin/Release/net7.0/STTextBasedGame.exe)
+## [🍓 <- Click me ](/STTextBasedGame/bin/Release/net7.0/STTextBasedGame.exe)
 
-  TO DO: add code features
+_**3. Enjoy!**_
+
+## Tech features
+use of linq
+async programming
+encapsulation
+inheritance
+
+maybe explain the structure of the scripts and give an overview of what each one does
